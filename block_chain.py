@@ -15,23 +15,17 @@ def verify_block_chain(block_chain: list) -> bool:
     """
     ブロックチェーンを検証する
     1. 前ブロックのハッシュ値確認
-    2. proof_of_work 確認
-    3. トランザクション検証
-    4. 検証済みとの重複確認
-    5. 新ブロック内での重複確認
+    2. トランザクション検証
+    3. 検証済みとの重複確認
+    4. 新ブロック内での重複確認
+    5. proof_of_work 確認
     print: False 時の理由
     """
     # 1. 前ブロックのハッシュ値の確認
     if make_hash_str(block_chain[-2]) != block_chain[-1]['hash']:
         print('hash_str invalid')
         return False
-    # 2. proof_of_work 確認
-    copy_new_block = block_chain[-1].copy()
-    copy_new_block.pop('time')
-    if not make_hash_str(copy_new_block).startswith('0'*POW_ZEROS):
-        print('proof_of_work invalid')
-        return False
-    # 3. トランザクション検証
+    # 2. トランザクション検証
     new_block_transactions = block_chain[-1]['transactions']
     for transaction in new_block_transactions:
         if transaction['sender'] != 'mikoto_project':
@@ -39,7 +33,7 @@ def verify_block_chain(block_chain: list) -> bool:
                 print('transaction invalid')
                 print(transaction)
                 return False
-    # 4. 検証済みとの重複確認(今回は最初のブロックのみなので空)
+    # 3. 検証済みとの重複確認(今回は最初のブロックのみなので空)
     verified_transactions = []
     for block in block_chain[:-1]:
         verified_transactions += block['transactions']
@@ -47,13 +41,19 @@ def verify_block_chain(block_chain: list) -> bool:
         if transaction in verified_transactions:
             print('duplicates invalid')
             return False
-    # 5. 新ブロック内での重複確認（signature で確認）
+    # 4. 新ブロック内での重複確認（signature で確認）
     signature_list = []
     for transaction in new_block_transactions:
         if transaction['sender'] != 'mikoto_project':
             signature_list.append(transaction['signature'])
     if len(signature_list) != len(set(signature_list)):
         print('new_block duplicates invalid')
+        return False
+    # 5. proof_of_work 確認
+    copy_new_block = block_chain[-1].copy()
+    copy_new_block.pop('time')
+    if not make_hash_str(copy_new_block).startswith('0'*POW_ZEROS):
+        print('proof_of_work invalid')
         return False
     return True
 
@@ -97,11 +97,11 @@ def mining(transaction_pool: list, block_chain: list, miner_public_key_str: str,
     return sorted_new_block
     
 
-def proof_of_work(block: dict) -> dict:
+def proof_of_work(block: dict, zeros=POW_ZEROS) -> dict:
     """
     ハッシュ値の最初の POW_ZEORS 文字を0にする nonce を算出する
     """
-    while not make_hash_str(block).startswith('0'*POW_ZEROS):
+    while not make_hash_str(block).startswith('0'*zeros):
         block['nonce'] += 1
     print('proof_of_work hash:', make_hash_str(block))
     return block
