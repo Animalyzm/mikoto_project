@@ -1,0 +1,11 @@
+{% include 'snippets/message.html' %}
+
+{% if user.is_authenticated %}
+  <h1>{{ user.username }}：ホーム</h1>
+  <a href="{% url 'user:logout' %}">ログアウト</a><br>
+  <!-- <a href="/user/logout">ログアウト</a><br> -->
+{% else %}
+  サインアップまたはログインしてください<br>
+  <a href="{% url 'user:signup' %}">サインアップ</a><br>
+  <a href="{% url 'user:login' %}">ログイン</a><br>
+{% endif %}

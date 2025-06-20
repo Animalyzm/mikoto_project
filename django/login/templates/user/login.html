@@ -1,0 +1,8 @@
+{% include 'snippets/message.html' %}
+
+<form method="POST">
+  {% csrf_token %}
+  {% include 'snippets/form_input.html' %}
+  <br>
+  <input type="submit" value="ログイン">
+</form>

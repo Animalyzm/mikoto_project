@@ -1,0 +1,12 @@
+<table>
+  {% for item in form %}
+    <tr>
+      <th style="text-align: left;">{{ item.label }}:&nbsp</th>
+      <td>{{ item }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+{% if form.errors %}
+  {{ form.errors }}
+{% endif %}
