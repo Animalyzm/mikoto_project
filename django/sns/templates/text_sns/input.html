@@ -1,0 +1,11 @@
+{% extends 'text_sns/base.html' %}
+{% block main_content %}
+<div class="d-flex justify-content-center">
+  <form method="POST">
+    <p class="mb-3 p-3 text-center">みこと(Mikoto) SNS</p>
+    <p class="text-center">{% include 'snippets/message.html' %}</p>
+    {% block sub_content %}
+    {% endblock %}
+  </form>
+</div>
+{% endblock %}

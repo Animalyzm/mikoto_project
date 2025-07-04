@@ -1,0 +1,11 @@
+{% extends 'text_sns/base.html' %}
+{% block main_content %}
+<div class="justify-content-center">
+  <p class="h3 p-4 text-center">みこと(Mikoto) SNS</p>
+  <hr>
+  <p class="text-center">本当にアカウントを削除してもよろしいでしょうか？</p>
+  <p class="text-center">
+    <a href="{% url 'text_sns:user_delete' %}">アカウント削除</a>
+  </p>
+</div>
+{% endblock %}

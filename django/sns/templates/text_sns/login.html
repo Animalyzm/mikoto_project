@@ -1,0 +1,16 @@
+{% extends 'text_sns/input.html' %}
+{% block sub_content %}
+{% csrf_token %}
+{% for item in form %}
+  <div>
+    {{ item.label }}:<br>
+    {{ item }}
+  </div>
+{% endfor %}
+<br>
+<button class="w-100 btn btn-light" type="submit">ログイン</button>
+<hr>
+<small class="d-flex justify-content-center">
+  <a href="{% url 'text_sns:signup' %}">サインアップ</a>
+</small>
+{% endblock %}

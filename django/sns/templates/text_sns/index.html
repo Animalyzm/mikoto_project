@@ -1,0 +1,39 @@
+{% extends 'text_sns/base.html' %}
+{% block main_content %}
+<div class="flex justify-content-center align-items-center">
+  <p class="text-center">みこと(Mikoto) SNS</p>
+  <p class="text-center">{% include 'snippets/message.html' %}</p>
+  {% if user.is_authenticated %}
+    <p>{{ user.username }}: {{ title }}</p>
+    <p>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:index' %}">ホーム</a>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:posts' %}">投稿</a>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:logout' %}">ログアウト</a>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:delete_confirm' %}">アカウント削除</a>
+    </p>
+
+    {% for obj in page_obj %}
+      <p class="text-muted small m-1">
+        「{{ obj.title }}」: {{ obj.author }}
+        {% if user.id == obj.author.id %}
+          <span class="text-muted small m-1 " style="float: right;">
+            <a href="{% url 'text_sns:posts_delete' obj.id %}">削除</a>
+          </span>
+        {% endif %}
+      </p>
+      <p class="border border-2 p-1 rounded-3">
+        {{ obj.content | linebreaksbr | urlize }}
+      </p>
+    {% endfor %}
+    {% comment %}
+    <span class="d-flex justify-content-center">
+      {% include 'snippets/pagination.html' %}
+    </span>
+    {% endcomment %}
+
+  {% else %}
+    <p class="text-center"><a href="{% url 'text_sns:signup' %}">サインアップ</a></p>
+    <p class="text-center"><a href="{% url 'text_sns:login' %}">ログイン</a></p>
+  {% endif %}
+</div>
+{% endblock %}
