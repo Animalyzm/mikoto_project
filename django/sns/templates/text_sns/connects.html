@@ -1,0 +1,18 @@
+{% extends 'text_sns/base.html' %}
+{% block main_content %}
+<div class="justify-content-center">
+  <p class="h3 p-4 text-center">みこと(Mikoto) SNS</p>
+  <hr>
+  <p class="text-center">{% include 'snippets/message.html' %}</p>
+  {% for connect in connects %}
+    <p class="text-center">
+      {{ connect.connected.id }}:{{ connect.connected.username }}: 
+      <a href="{% url 'text_sns:connect_seeyou' connect.connected.id %}">またねする</a>
+    </p>
+  {% endfor %}
+  <hr>
+  <p class="d-flex justify-content-center">
+  <a href="{% url 'text_sns:index' %}">ホーム</a>
+  </p>
+</div>
+{% endblock %}

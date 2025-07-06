@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-from .models import Content
+from .models import Content, Comment
 
 
 class SignupForm(forms.ModelForm):
@@ -48,4 +48,16 @@ class PostsForm(forms.ModelForm):
             'author': forms.TextInput(),
             'content': forms.Textarea(attrs={'rows': 6, 'cols': 40}),
         }
+    
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = '__all__'
+        widgets = {
+            'comment': forms.Textarea(attrs={'rows': 3, 'cols': 40}),
+        }
+        
+        
+class SearchForm(forms.Form):
+    keyword = forms.CharField(label='キーワード', max_length=32)
     

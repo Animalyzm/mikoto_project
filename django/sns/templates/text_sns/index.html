@@ -1,5 +1,7 @@
 {% extends 'text_sns/base.html' %}
 {% block main_content %}
+{% load static %}
+<script src="{% static 'text_sns/js/script.js' %}"></script>
 <div class="flex justify-content-center align-items-center">
   <p class="text-center">みこと(Mikoto) SNS</p>
   <p class="text-center">{% include 'snippets/message.html' %}</p>
@@ -8,28 +10,56 @@
     <p>
       <a class="navbar-brand fs-6" href="{% url 'text_sns:index' %}">ホーム</a>
       <a class="navbar-brand fs-6" href="{% url 'text_sns:posts' %}">投稿</a>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:all_contents' %}">全件表示</a>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:check_contents' %}">チェック一覧</a>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:connects' %}">つながり</a>
+      <a class="navbar-brand fs-6" href="{% url 'text_sns:search' %}">検索</a>
       <a class="navbar-brand fs-6" href="{% url 'text_sns:logout' %}">ログアウト</a>
       <a class="navbar-brand fs-6" href="{% url 'text_sns:delete_confirm' %}">アカウント削除</a>
     </p>
+    <hr>
 
     {% for obj in page_obj %}
       <p class="text-muted small m-1">
-        「{{ obj.title }}」: {{ obj.author }}
+        「{{ obj.title }}」 {{ obj.author }}（{{ obj.created_at }}）<br>
+        <a href="{% url 'text_sns:connect' obj.id %}">つながる</a>
+        <a href="{% url 'text_sns:check' obj.id %}" class="m-2">チェック</a>
         {% if user.id == obj.author.id %}
-          <span class="text-muted small m-1 " style="float: right;">
-            <a href="{% url 'text_sns:posts_delete' obj.id %}">削除</a>
-          </span>
+          <a href="{% url 'text_sns:posts_delete' obj.id %}" style="float: right;">削除</a>
         {% endif %}
       </p>
+
       <p class="border border-2 p-1 rounded-3">
         {{ obj.content | linebreaksbr | urlize }}
       </p>
+
+      <p class="text-muted small">
+        <span id="obj_id" hidden>{{ obj.id }}</span>
+        <button id="good_btn" type="button" class="btn btn-light p-1" style="float: right;">
+          <span class="small">いいね: </span>
+          <span id="good_count" class="small">{{ obj.good_set.all.count }}</span>
+        </button>
+
+        <a href="{% url 'text_sns:comment' obj.id %}">コメントする</a>
+        <span class="m-2">コメント件数: {{ obj.comment_set.all.count }}</span><br>
+        {% if obj.comment_set.all %}
+          {% for comment in obj.comment_set.all %}
+            {{ comment.writer }}:  
+            {{ comment.comment | linebreaksbr | urlize }}
+            ({{ comment.created_at }})
+            {% if comment.writer.id == user.id %}
+              <a href="{% url 'text_sns:comment_delete' comment.id %}" class="m-2">削除する</a>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </p>
+      <hr>
+
     {% endfor %}
-    {% comment %}
+
     <span class="d-flex justify-content-center">
       {% include 'snippets/pagination.html' %}
     </span>
-    {% endcomment %}
 
   {% else %}
     <p class="text-center"><a href="{% url 'text_sns:signup' %}">サインアップ</a></p>

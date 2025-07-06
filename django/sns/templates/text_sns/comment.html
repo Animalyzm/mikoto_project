@@ -1,0 +1,16 @@
+{% extends 'text_sns/input.html' %}
+{% block sub_content %}
+{% csrf_token %}
+<div>
+  <input type="hidden" name="content" value="{{ content_id }}">
+  <input type="hidden" name="writer" value="{{ user.id }}">
+  {% for item in form %}
+  {% if item.label != 'Content' and item.label != 'Writer' %}
+    {{ item.label }}:<br>
+    {{ item }}
+  {% endif %}
+  {% endfor %}
+</div>
+<br>
+<button class="w-100 btn btn-light" type="submit">投稿</button>
+{% endblock %}
