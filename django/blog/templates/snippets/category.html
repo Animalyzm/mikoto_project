@@ -1,0 +1,10 @@
+<ul class="list-group fw-bold">
+    <span class="rad_5">
+      <li class="list-group-item bg_fc_dark2">カテゴリ一覧</li>
+      {% for category in category_list %}
+        <li class="list-group-item bg_fc_dark">
+          <a href='{% url "app:category" category.pk %}'>{{ category }}</a>
+        </li>
+      {% endfor %}
+    </span>
+</ul>

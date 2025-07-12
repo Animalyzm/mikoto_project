@@ -1,0 +1,41 @@
+html {
+  background-color: #222;
+}
+body { 
+  /* Web フォント */ 
+  font-family: "M PLUS 1p", sans-serif;
+  background-color: #222;
+  color: #ccc;
+  /* 初期のフッター位置調整 */
+  display: flex; 
+  flex-flow: column; 
+  min-height: 100vh; 
+}
+main {
+  /* 初期のフッター位置調整 */
+  flex: 1; 
+}
+a {
+  text-decoration: none;
+  color: aquamarine;
+}
+a:visited {
+  color: aquamarine;
+}
+a:hover {
+  color: lightgreen;
+}
+/* 自作 */
+.bg_fc_dark {
+  background-color: #111;
+  color: #ccc;
+}
+.bg_fc_dark2 {
+  background-color: #181818;
+  color: #ccc;
+.pos_right {
+  float: right;
+}
+.rad_5 {
+  border-radius: 0.5em;
+}

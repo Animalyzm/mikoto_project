@@ -1,0 +1,31 @@
+{% extends 'app/base.html' %}
+{% block content %}
+<div class="container">
+  <div class="mb-3 p-3 bg_fc_dark rad_5" style="margin-top: 5rem;">
+    <h1 class="fw-bold">ブログ</h1>
+    <hr>
+    説明
+  </div>
+  <!-- 2カラムレイアウト -->
+  <div class="row">
+    <div class="col-md-8">
+      {% for post in post_list %}
+        <div class="card mb-2 bg_fc_dark rad_5">
+          <div class="card-body pb-0">
+            <p class="fs-6">{{post.created_at }}, {{ post.category }}</p>
+            <p class="fw-bold fs-5">
+              <span class="me-3">{{ post.title }}</span>
+              <a href="{% url 'app:detail' post.pk %}" class="btn btn-dark btn-sm">続きを読む</a>
+            </p>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+    <!-- 768ピクセル以上 -->
+    <div class="col-md-4">
+      {% include 'snippets/category.html' %}
+    </div>
+  </div>
+</div>
+{% endblock %}

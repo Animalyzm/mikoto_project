@@ -1,0 +1,26 @@
+{% extends 'app/base.html' %}
+{% block content %}
+<div class="container">
+  <div class="row" style="margin-top: 5rem;">
+    <div class="col-md-8 pb-3">
+      <div class="card mb-1 bg_fc_dark rad_5">
+        <div class="card-body">
+          <span class="fs-6">{{post.created_at }}, {{ post.category }}</span>
+          <p class="fs-4 fw-bold">{{ post.title }}</p>
+          <hr>
+          <!-- safe フィルタで HTML エスケープを無効にする -->
+          {{ post.markdown_to_html | safe }}
+        </div>
+      </div>
+      <span class="pe-2 pos_right">PV: {{ post.page_views }}</span><br>
+
+      <a class="btn m-1 bg_fc_dark pos_right" href="{% url 'app:index' %}">ホーム</a>
+      <hr>
+    </div>
+    <!-- 768ピクセル以上 -->
+    <div class="col-md-4">
+      {% include 'snippets/category.html' %}
+    </div>
+  </div>
+</div>
+{% endblock %}
