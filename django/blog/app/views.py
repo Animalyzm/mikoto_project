@@ -1,6 +1,8 @@
+from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 
-from .models import Post
+from .forms import CommentCreateForm
+from .models import Post, Comment
 
 
 class IndexView(generic.ListView):
@@ -20,4 +22,15 @@ class DetailView(generic.DetailView):
     
 class CategoryView(generic.ListView):
     model = Post
-    
+
+
+class CommentView(generic.CreateView):
+    model = Comment
+    form_class = CommentCreateForm
+
+    def form_valid(self, form):
+        post_pk = self.kwargs['post_pk']
+        comment = form.save(commit=False)
+        comment.post = get_object_or_404(Post, pk=post_pk)
+        comment.save()  # DBに保存
+        return redirect('app:detail', pk=post_pk)

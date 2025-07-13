@@ -25,3 +25,13 @@ class Post(models.Model):
         md = markdown.Markdown(extensions=['extra', 'admonition', 'sane_lists', 'toc'])
         html = md.convert(self.content)
         return html
+
+
+class Comment(models.Model):
+    name = models.CharField('お名前', max_length=32, default='名無し')
+    comment = models.TextField('コメント', max_length=512)
+    post = models.ForeignKey(Post, verbose_name='紐づく記事', on_delete=models.CASCADE)
+    created_at = models.DateTimeField('作成日', auto_now_add=True)
+
+    def __str__(self):
+        return self.comment[:10]

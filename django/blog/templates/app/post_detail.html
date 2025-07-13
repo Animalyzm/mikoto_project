@@ -14,8 +14,16 @@
       </div>
       <span class="pe-2 pos_right">PV: {{ post.page_views }}</span><br>
 
+      <a class="btn m-1 bg_fc_dark" href="{% url 'app:comment' post.pk %}">コメント投稿</a>
       <a class="btn m-1 bg_fc_dark pos_right" href="{% url 'app:index' %}">ホーム</a>
       <hr>
+      {% for comment in post.comment_set.all reversed %}
+        <p class="ps-2 fs-6">
+          {{ comment.name }}: ({{ comment.created_at }})<br>
+          {{ comment.comment | linebreaksbr }}
+        </p>
+        <hr>
+      {% endfor %}
     </div>
     <!-- 768ピクセル以上 -->
     <div class="col-md-4">

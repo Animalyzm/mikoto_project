@@ -25,6 +25,15 @@ a:visited {
 a:hover {
   color: lightgreen;
 }
+/* コメント入力時 */
+#id_comment {
+  background-color: #111;
+  color: #ccc;
+}
+#id_name {
+  background-color: #111;
+  color: #ccc;
+}
 /* 自作 */
 .bg_fc_dark {
   background-color: #111;

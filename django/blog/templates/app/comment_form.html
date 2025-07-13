@@ -1,0 +1,12 @@
+{% extends 'app/base.html' %}
+{% block content %}
+<div class="container d-flex justify-content-center">
+  <form action="" method="POST" style="margin-top: 4rem; width: 25rem;">
+    {% csrf_token %}
+    {{ form }}
+    <span class="d-flex justify-content-center mt-3">
+      <button type="submit" class="btn  btn-dark border-light">送信</button>
+    </span>
+  </form>
+</div>
+{% endblock %}
