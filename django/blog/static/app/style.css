@@ -25,6 +25,14 @@ a:visited {
 a:hover {
   color: lightgreen;
 }
+/* コード表示用 */
+pre {
+  background: #122;
+  border-radius: 10px;
+  color: #eee;
+  padding: 1em;
+  white-space: pre-wrap;
+}
 /* コメント入力時 */
 #id_comment {
   background-color: #111;
@@ -34,6 +42,52 @@ a:hover {
   background-color: #111;
   color: #ccc;
 }
+/* ナビバーの透明度など */
+#navbarSupportedContent {
+  opacity: 0.6;
+  background-color: #222;
+  color: #fff;
+}
+/* TOC: ホバーで目次表示 */
+#toc {
+  border: none;
+}
+#toc ul {
+  display: none;
+  position: absolute;
+  width: 300px;
+  list-style: none;
+  background-color: #000;
+  padding: 1rem;
+  border-radius: 0.5em;
+  font-weight: bold;
+}
+.toc-display {
+  position: relative;
+  display: inline-block;
+}
+.toc-display:hover #toc ul {
+  display: block;
+  opacity: 0.8;
+  border-bottom: none;
+}
+/* スクロールボタン */
+.scroll-top {
+    position: fixed;
+    right: 15px;
+    bottom: 25px;
+    z-index: 100;
+    background-color: #666;
+    width: 50px;
+    height: 50px;
+    border-radius: 20%;
+    color: #fff;
+    line-height: 50px;
+    text-align: center;
+    font-size: 30px;
+    opacity: 0;
+    transition-duration: 0.5s;
+  }
 /* 自作 */
 .bg_fc_dark {
   background-color: #111;
@@ -48,4 +102,7 @@ a:hover {
 }
 .rad_5 {
   border-radius: 0.5em;
+}
+.page_border {
+  border: 1px solid #555;
 }

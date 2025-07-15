@@ -37,7 +37,21 @@
                   <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
                 </li>
               {% endif %}
+              <!-- TOC -->
+              {% if 'detail' in request.resolver_match.url_name %}
+                <li class="nav-item ms-3 toc-display" style="border-bottom: none;">
+                  <span class="toc-display">
+                    <a class="nav-link active fw-bold">もくじ</a>
+                    <span id="toc" class="card"></span>
+                  </span>
+                </li>
+              {% endif %}
             </ul>
+            <!-- 検索 -->
+            <form class="d-flex" method="GET" action="{% url 'app:index' %}">
+              <input class="form-control fw-bold ms-3" type="search" placeholder="Search" aria-label="Search" name="keyword" style="background-color:#111; color: #ccc;">
+              <button class="btn btn-outline-success mx-2 fw-bold" type="submit">Search</button>
+            </form>
           </div>
         </div>
       </nav>
@@ -47,12 +61,60 @@
       {% block content %}
       {% endblock content %}
     </main>
+
+    <!-- トップへ戻るボタン -->
+    <div id="js-scroll-top" class="scroll-top">⇧</div>
     
     <!-- フッター -->
     <footer class="text-light text-center py-3">
       <hr>
       © 2025
     </footer>
+
+    <script>
+      // TOC の位置を貼りかえる（本文からナビバーへ）
+      const toc = document.querySelector('div.card-body > div.toc > ul');
+      console.log(toc);
+      if (toc !== null) {
+        const copyToc = toc.cloneNode(true);
+        document.querySelector('span#toc').appendChild(copyToc);
+        document.querySelector('div.card-body > div.toc').removeChild(toc);
+      }
+
+      // スクロールボタン
+      const PageTopBtn = document.getElementById('js-scroll-top');
+      PageTopBtn.addEventListener('click', () =>{
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+      //スクロール時のイベントを追加
+      window.addEventListener('scroll' , scroll_event );
+      function scroll_event(){
+        if(window.pageYOffset > 50){
+          PageTopBtn.style.opacity = '0.5';
+          // ホバー時設定
+          PageTopBtn.addEventListener('mouseover', function() {
+            PageTopBtn.style.opacity = 1;
+            PageTopBtn.style.cursor = "pointer";
+          });
+          PageTopBtn.addEventListener('mouseleave', function() {
+            PageTopBtn.style.opacity = 0.5;
+          });
+        }else	if(window.pageYOffset < 50){
+          PageTopBtn.style.opacity = '0';
+          // ホバー時設定
+          PageTopBtn.addEventListener('mouseover', function() {
+            PageTopBtn.style.opacity = 0;
+            PageTopBtn.style.cursor = "default";
+          });
+          PageTopBtn.addEventListener('mouseleave', function() {
+            PageTopBtn.style.opacity = 0;
+          });
+        }
+      };
+    </script>
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>

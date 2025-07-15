@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 
@@ -7,6 +8,16 @@ from .models import Post, Comment
 
 class IndexView(generic.ListView):
     model = Post
+    paginate_by = 5
+
+    def get_queryset(self):
+        queryset = Post.objects.order_by('-created_at')  # 降順
+        keyword = self.request.GET.get('keyword')  # 検索入力キーワード
+        if keyword:
+            queryset = queryset.filter(
+                Q(title__icontains=keyword) | Q(content__icontains=keyword)
+            )  # icontains: 部分一致、大小文字区別なし
+        return queryset
 
 
 class DetailView(generic.DetailView):
@@ -22,6 +33,12 @@ class DetailView(generic.DetailView):
     
 class CategoryView(generic.ListView):
     model = Post
+    paginate_by = 5
+
+    def get_queryset(self):
+        category_pk = self.kwargs['category_pk']
+        queryset = Post.objects.order_by('-created_at').filter(category__pk=category_pk)
+        return queryset
 
 
 class CommentView(generic.CreateView):
