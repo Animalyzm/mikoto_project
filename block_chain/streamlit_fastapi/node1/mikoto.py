@@ -1,9 +1,27 @@
 import binascii
 import datetime as dt
 import json
+from typing import Tuple
 
 from ecdsa import SECP256k1, SigningKey, VerifyingKey
 import requests
+
+
+def public_key_str_search(public_key_str: str) -> bool:
+    key_data_list = load_json('json/key_data_list.json')
+    public_key_str_list = [key_data['public_key_str'] for key_data in key_data_list]
+    return public_key_str in public_key_str_list
+
+
+def make_login_data(path: str) -> Tuple[dict, str]:
+    my_data = load_json(path)
+    login_data = {
+        'time': dt.datetime.now().isoformat(),
+        'public_key_str': my_data['public_key_str']
+    }
+    signature = make_signature_str(login_data, my_data['secret_key_str'])
+    login_data['signature'] = signature
+    return login_data, my_data['url']
 
 
 def get_url_list(base_path='json/') -> list:

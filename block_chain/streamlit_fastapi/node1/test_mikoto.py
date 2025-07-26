@@ -22,6 +22,22 @@ co_base_url = 'http://127.0.0.1'
 co_port_list = [':8010', ':8011', ':8012']
 
 
+def test_public_key_str_search():
+    """ test: true case, false case """
+    my_data = mik.load_json('json/.my_data.json')
+    assert mik.public_key_str_search(my_data['public_key_str'])
+    assert not mik.public_key_str_search(co_public_key_str)
+
+
+def test_make_login_data():
+    """ test: type, keys """
+    login_data, url = mik.make_login_data(('json/.my_data.json'))
+    assert isinstance(login_data, dict)
+    assert isinstance(url, str)
+    key_list = ['time', 'public_key_str', 'signature']
+    assert list(login_data.keys()) == key_list
+
+
 def test_get_url_list():
     """ test: type, url """
     url_list = mik.get_url_list(base_path=r'json/')

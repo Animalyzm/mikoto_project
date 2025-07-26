@@ -2,10 +2,36 @@ import os
 
 import streamlit as st
 
+import log
 import mikoto as mik
 
 
+logger = log.get_logger('app')
+log.basic_config('debug', 'block_chain.log')
+
+
 st.markdown("### みことプロジェクト")
+
+
+def change_state(ss):
+    if ss.state is True:
+        ss.state = False
+        ss.label = 'ログイン'
+        log.log_debug(logger, 'logout')
+    else:
+        login_data, url = mik.make_login_data('json/.my_data.json')
+        try:
+            response = mik.post_data(url+'/login_data', login_data)
+            if response.json() == {"message": "login_data valid"}:
+                ss.state = True
+                ss.label = 'ログアウト'
+                log.log_debug(logger, 'login')
+            else:
+                ss.label = 'ログインできませんでした'
+                log.log_error(logger, 'login failed')
+        except:
+            ss.label = 'ログインできませんでした'
+            log.log_error(logger, 'login failed')
 
 if not os.path.exists('json/.my_data.json'):
     name = st.text_input('ニックネームを入力してください')
@@ -28,17 +54,33 @@ if not os.path.exists('json/.my_data.json'):
                 if res.status_code == 200:
                     res_200_count += 1
                 st.json({"status_code": res.status_code})
-                st.json(res.json())
+                log.log_debug(logger, f'{res}: {res.json()}')
             except:
                 st.json({"message": f"{url}: error"})
+                log.log_error(logger, f"{url}: error")
         # 認証率合格なら保存
         if res_200_count / len(url_list) > 0.9:
             mik.save_json(key_data, "json/.my_data.json")
+            log.log_debug(logger, 'key_data saved')
         else:
             st.json({"message": "key_data invalid"})
+            log.log_error(logger, 'key_data invalid')
 
 else:
     st.markdown("鍵作成済の場合の表示")
+    # 初期化
+    ss = st.session_state
+    if 'state' not in ss:
+        ss.state = False
+    if 'label' not in ss:
+        ss.label = 'ログイン'
+
+    st.button(ss.label, key='login', on_click=change_state, args=(ss,))
+
+    if ss.state is True:
+        st.markdown('ログイン中')
+    else:
+        st.markdown('ログアウト状態')
 
 
 # streamlit run app.py --server.port 8502
