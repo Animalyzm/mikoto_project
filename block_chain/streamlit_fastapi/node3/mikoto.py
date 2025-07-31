@@ -7,6 +7,32 @@ from ecdsa import SECP256k1, SigningKey, VerifyingKey
 import requests
 
 
+def make_thanks_transaction(
+        sender_secret_key_str: str, sender_public_key_str: str,
+        receiver_public_key_str: str, mik: int) -> dict:
+    thanks_transaction = {
+        'time': dt.datetime.now().isoformat(),
+        'sender': sender_public_key_str,
+        'receiver': receiver_public_key_str,
+        'MIK': mik,
+    }
+    signature = make_signature_str(
+        thanks_transaction, sender_secret_key_str)
+    thanks_transaction['signature'] = signature
+    return thanks_transaction
+
+
+def make_mikoto_transaction(receiver_public_key_str: str, mik: int) -> dict:
+    mikoto_transaction = {
+        'time': dt.datetime.now().isoformat(),
+        'sender': 'mikoto_project',
+        'receiver': receiver_public_key_str,
+        'MIK': mik,
+        'signature': 'mikoto_project',
+    }
+    return mikoto_transaction
+
+
 def public_key_str_search(public_key_str: str) -> bool:
     key_data_list = load_json('json/key_data_list.json')
     public_key_str_list = [key_data['public_key_str'] for key_data in key_data_list]

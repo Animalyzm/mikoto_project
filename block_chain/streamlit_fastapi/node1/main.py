@@ -27,6 +27,14 @@ class LoginData(BaseModel):
     signature: str
 
 
+class Transaction(BaseModel):
+    time: str
+    sender: str
+    receiver: str
+    MIK: int
+    signature: str
+
+
 app = FastAPI()
 
 
@@ -68,6 +76,20 @@ async def post_login_data(login_data: LoginData):
     else:
         log.log_error(logger, 'public_key_str invalid')
         return {"message": "public_key_str invalid"}
+
+
+@app.post('/transaction')
+async def post_transaction(transaction: Transaction):
+    transaction = dict(transaction)
+    if transaction['sender'] != 'mikoto_project':
+        if not mik.verify_data(transaction, transaction['sender']):
+            log.log_error(logger, 'transaction invalid')
+            return {'message': 'transaction invalid'}
+    transaction_pool = mik.load_json('json/transaction_pool.json')
+    transaction_pool.append(transaction)
+    mik.save_json(transaction_pool, 'json/transaction_pool.json')
+    log.log_debug(logger, 'transaction received')
+    return {'message': 'transaction received'}
 
 
 # uvicorn main:app --reload --port 8010

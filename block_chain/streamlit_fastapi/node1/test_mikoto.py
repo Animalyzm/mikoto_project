@@ -1,9 +1,10 @@
 import binascii
-from ecdsa import SigningKey, SECP256k1, VerifyingKey
+import datetime as dt
 import json
 import os
 import re
 
+from ecdsa import SigningKey, SECP256k1, VerifyingKey
 import pytest
 
 import mikoto as mik
@@ -17,9 +18,43 @@ co_secret_key = SigningKey.generate(curve=SECP256k1)
 co_public_key = co_secret_key.verifying_key
 co_secret_key_str = co_secret_key.to_string().hex()
 co_public_key_str = co_public_key.to_string().hex()
+co2_secret_key = SigningKey.generate(curve=SECP256k1)
+co2_public_key = co2_secret_key.verifying_key
+co2_public_key_str = co2_public_key.to_string().hex()
 co_name_list = ['Dog', 'Cat', 'Lion']
 co_base_url = 'http://127.0.0.1'
 co_port_list = [':8010', ':8011', ':8012']
+
+
+def test_make_thanks_transaction():
+    """ test: type, keys, conversion, value, unhexlify """
+    thanks_transaction = mik.make_thanks_transaction(
+        co_secret_key_str, co_public_key_str,
+        co2_public_key_str, 100
+    )
+    assert isinstance(thanks_transaction, dict)
+    keys = list(thanks_transaction.keys())
+    assert keys == ['time', 'sender', 'receiver', 'MIK', 'signature']
+    assert dt.datetime.fromisoformat(thanks_transaction['time'])
+    assert thanks_transaction['sender'] == co_public_key_str
+    assert thanks_transaction['receiver'] == co2_public_key_str
+    assert isinstance(thanks_transaction['MIK'], int)
+    assert isinstance(thanks_transaction['signature'], str)
+    assert binascii.unhexlify(thanks_transaction['signature'])
+
+
+def test_make_mikoto_trasaction():
+    """ test: type, keys, value """
+    mikoto_transaction = mik.make_mikoto_transaction(
+        co_public_key_str, 100
+    )
+    assert isinstance(mikoto_transaction, dict)
+    assert list(mikoto_transaction.keys()) == ['time', 'sender', 'receiver', 'MIK', 'signature']
+    assert dt.datetime.fromisoformat(mikoto_transaction['time'])
+    assert mikoto_transaction['sender'] == 'mikoto_project'
+    assert mikoto_transaction['receiver'] == co_public_key_str
+    assert isinstance(mikoto_transaction['MIK'], int)
+    assert mikoto_transaction['signature'] == 'mikoto_project'
 
 
 def test_public_key_str_search():

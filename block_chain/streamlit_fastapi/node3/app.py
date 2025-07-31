@@ -79,6 +79,57 @@ else:
 
     if ss.state is True:
         st.markdown('ログイン中')
+        menu = ['発行または送信']
+        choice = st.selectbox(label='メニュー', options=menu)
+        key_data_list = mik.load_json('json/key_data_list.json')
+        my_data = mik.load_json('json/.my_data.json')
+        if choice == '発行または送信':
+            # select に変更（my_name or mikoto_project）
+            sender_name = st.selectbox('送り手（mikoto_projectは発行）', [my_data['name'], 'mikoto_project'])
+
+            receiver_name = st.text_input('受け取り手')
+            receiver_data = None
+            if receiver_name:
+                if (sender_name != 'mikoto_project' and
+                    receiver_name == my_data['name']):
+                    st.markdown('自分には送信できません')
+                else:
+                    for key_data in key_data_list:
+                        if key_data['name'] == receiver_name:
+                            receiver_data = key_data
+                            st.write(receiver_data)
+                    if not receiver_data:
+                        st.markdown('登録されていないニックネームです')
+
+            mik_value = st.number_input('MIKの量', min_value=0, step=1)
+
+            if receiver_data and mik_value:
+                if st.button('実行する'):
+                    if sender_name == 'mikoto_project':
+                        transaction = mik.make_mikoto_transaction(
+                            receiver_data['public_key_str'],
+                            mik_value
+                        )
+                        st.json(transaction)
+                    else:
+                        transaction = mik.make_thanks_transaction(
+                            my_data['secret_key_str'],
+                            my_data['public_key_str'],
+                            receiver_data['public_key_str'],
+                            mik_value
+                        )
+                        st.json(transaction)
+
+                    url_list = mik.get_url_list()
+                    for url in url_list:
+                        try:
+                            res = mik.post_data(url+'/transaction', transaction)
+                            st.json(res.json())
+                            log.log_debug(logger, f'{res}: {res.json()}')
+                        except:
+                            st.json({"message": f"{url}: error"})
+                            log.log_error(logger, f"{url}: error")
+
     else:
         st.markdown('ログアウト状態')
 
