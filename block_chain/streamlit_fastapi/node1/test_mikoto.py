@@ -1,5 +1,6 @@
 import binascii
 import datetime as dt
+import hashlib
 import json
 import os
 import re
@@ -10,7 +11,7 @@ import pytest
 import mikoto as mik
 
 
-online = False
+online = True
 """ True: uvicorn main:app --reload --port 8010 """
 
 """ 共通利用のデータなど """
@@ -24,6 +25,56 @@ co2_public_key_str = co2_public_key.to_string().hex()
 co_name_list = ['Dog', 'Cat', 'Lion']
 co_base_url = 'http://127.0.0.1'
 co_port_list = [':8010', ':8011', ':8012']
+co_transaction = mik.make_thanks_transaction(
+    co_secret_key_str, co_public_key_str,
+    co2_public_key_str, 50
+)
+co_block_chain = [{
+    'time': dt.datetime.now().isoformat(),
+    'transactions': [],
+    'hash': 'mikoto_block_chain',
+    'nonce': 0
+}]
+
+
+def test_verify_block_chain():
+    """ test: True case, False case """
+    new_block = mik.mining(
+        [co_transaction], co_block_chain, co_public_key_str, 100)
+    co_block_chain.append(new_block)
+    assert mik.verify_block_chain(co_block_chain)
+    co_block_chain[-1]['nonce'] -= 1
+    assert not mik.verify_block_chain(co_block_chain)
+
+
+def test_mining():
+    new_block = mik.mining([co_transaction], co_block_chain, co_public_key_str, 100)
+    assert isinstance(new_block, dict)
+    key_list = ['time', 'transactions', 'hash', 'nonce']
+    assert list(new_block.keys()) == key_list
+
+
+def test_proof_of_work():
+    block = {'transactions': [], 'nonce': 0}
+    block = mik.proof_of_work(block, 3)
+    assert hashlib.sha256(json.dumps(block).encode('utf-8')).hexdigest()[:3] == '0'*3
+
+
+def test_make_hash_str():
+    dict_data1 = {'a': 1, 'b': 2}
+    dict_data2 = {'a': 1, 'b': 3}
+    dict_hash_str1 = mik.make_hash_str(dict_data1)
+    dict_hash_str2 = mik.make_hash_str(dict_data2)
+    assert isinstance(dict_hash_str1, str)
+    assert len(dict_hash_str1) == 64
+    assert dict_hash_str1 != dict_hash_str2
+
+
+@pytest.mark.skipif(online==False, reason="not online")
+def test_get_data():
+    response = mik.get_data(co_base_url + co_port_list[0])
+    assert response.status_code == 200
+    assert response.json() == "Welcome to Mikoto Project!"
 
 
 def test_make_thanks_transaction():

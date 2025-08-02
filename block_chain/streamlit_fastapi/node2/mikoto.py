@@ -1,10 +1,86 @@
 import binascii
 import datetime as dt
+import hashlib
 import json
 from typing import Tuple
 
 from ecdsa import SECP256k1, SigningKey, VerifyingKey
 import requests
+
+
+POW_ZEROS = 3
+
+
+def verify_block_chain(block_chain: list) -> bool:
+    # 1. 前ブロックのハッシュ値の確認
+    if make_hash_str(block_chain[-2]) != block_chain[-1]['hash']:
+        return False
+    # 2. トランザクション検証
+    new_block_transactions = block_chain[-1]['transactions']
+    for transaction in new_block_transactions:
+        if transaction['sender'] != 'mikoto_project':
+            if not verify_data(transaction, transaction['sender']):
+                return False
+    # 3. 検証済みとの重複確認(今回は空)
+    verified_transactions = []
+    for block in block_chain[:-1]:
+        verified_transactions += block['transactions']
+    for transaction in new_block_transactions:
+        if transaction in verified_transactions:
+            return False
+    # 4. 新ブロック内での重複確認（signature で確認）
+    signature_list = []
+    for transaction in new_block_transactions:
+        if transaction['sender'] != 'mikoto_project':
+            signature_list.append(transaction['signature'])
+    if len(signature_list) != len(set(signature_list)):
+        return False
+    # 5. proof_of_work 確認
+    copy_new_block = block_chain[-1].copy()
+    copy_new_block.pop('time')
+    if not make_hash_str(copy_new_block).startswith('0'*POW_ZEROS):
+        return False
+    return True
+
+
+def mining(transaction_pool: list, block_chain: list, miner_public_key_str: str, mik: int) -> dict:
+    verified_transactions = []
+    for block in block_chain:
+        verified_transactions += block['transactions']  # 検証済
+    for transaction in transaction_pool:
+        if transaction in verified_transactions:  # 重複チェック
+            transaction_pool.remove(transaction)
+            continue
+        if transaction['sender'] != 'mikoto_project':
+            if not verify_data(transaction, transaction['sender']):
+                transaction_pool.remove(transaction)
+    mikoto_transaction = make_mikoto_transaction(miner_public_key_str, mik)
+    transaction_pool.append(mikoto_transaction)
+    previous_block_hash_str = make_hash_str(block_chain[-1])
+    new_block = {
+        'transactions': transaction_pool,
+        'hash': previous_block_hash_str,
+        'nonce': 0
+    }
+    new_block = proof_of_work(new_block)  # nonce, PoW
+    new_block['time'] = dt.datetime.now().isoformat()
+    keys = ['time', 'transactions', 'hash', 'nonce']
+    sorted_new_block = {key: new_block[key] for key in keys}
+    return sorted_new_block
+
+
+def proof_of_work(block: dict, zeros=POW_ZEROS) -> dict:
+    while not make_hash_str(block).startswith('0'*zeros):
+        block['nonce'] += 1
+    return block
+
+
+def make_hash_str(data: dict) -> str:
+    return hashlib.sha256(json.dumps(data).encode('utf-8')).hexdigest()
+
+
+def get_data(url: str) -> requests.Response:
+    return requests.get(url)
 
 
 def make_thanks_transaction(

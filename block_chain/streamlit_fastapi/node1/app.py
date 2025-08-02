@@ -1,6 +1,7 @@
 import os
 
 import streamlit as st
+from pandas.core.internals.blocks import new_block
 
 import log
 import mikoto as mik
@@ -79,10 +80,12 @@ else:
 
     if ss.state is True:
         st.markdown('ログイン中')
-        menu = ['発行または送信']
+        menu = ['発行または送信', 'マイニング']
         choice = st.selectbox(label='メニュー', options=menu)
         key_data_list = mik.load_json('json/key_data_list.json')
         my_data = mik.load_json('json/.my_data.json')
+        url_list = mik.get_url_list()
+
         if choice == '発行または送信':
             sender_name = st.selectbox('送り手（mikoto_projectは発行）', [my_data['name'], 'mikoto_project'])
 
@@ -119,7 +122,6 @@ else:
                         )
                         st.json(transaction)
 
-                    url_list = mik.get_url_list()
                     for url in url_list:
                         try:
                             res = mik.post_data(url+'/transaction', transaction)
@@ -128,6 +130,27 @@ else:
                         except:
                             st.json({"message": f"{url}: error"})
                             log.log_error(logger, f"{url}: error")
+
+        if choice == 'マイニング':
+            if st.button('マイニングを実行'):
+                block_chain = mik.load_json('json/block_chain.json')
+                transaction_pool = mik.load_json('json/transaction_pool.json')
+                new_block = mik.mining(
+                    transaction_pool,
+                    block_chain,
+                    my_data['public_key_str'],
+                    100)
+                block_chain.append(new_block)
+
+                for url in url_list:
+                    try:
+                        res = mik.post_data(url + '/block_chain', block_chain)
+                        st.json(res.json())
+                        log.log_debug(logger, f'{res}: {res.json()}')
+                    except:
+                        st.json({"message": f"{url}: error"})
+                        log.log_error(logger, f"{url}: error")
+
 
     else:
         st.markdown('ログアウト状態')

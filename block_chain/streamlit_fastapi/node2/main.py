@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import List
 
 import log
 import mikoto as mik
@@ -33,6 +34,13 @@ class Transaction(BaseModel):
     receiver: str
     MIK: int
     signature: str
+
+
+class Block(BaseModel):
+    time: str
+    transactions: list = None
+    hash: str
+    nonce: int
 
 
 app = FastAPI()
@@ -90,6 +98,18 @@ async def post_transaction(transaction: Transaction):
     mik.save_json(transaction_pool, 'json/transaction_pool.json')
     log.log_debug(logger, 'transaction received')
     return {'message': 'transaction received'}
+
+
+@app.post('/block_chain')
+async def post_block_chain(block_chain: List[Block]):
+    new_block_chain = [dict(block) for block in block_chain]
+    if not mik.verify_block_chain(new_block_chain):
+        return {"message": "block_chain invalid"}
+    mik.save_json([], 'json/transaction_pool.json')
+    block_chain = mik.load_json('json/block_chain.json')
+    block_chain.append(new_block_chain)
+    mik.save_json(block_chain, 'json/block_chain.json')
+    return {"message": "block_chain received"}
 
 
 # uvicorn main:app --reload --port 8011
