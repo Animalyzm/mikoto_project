@@ -1,0 +1,10 @@
+.idea/
+
+# 仮想環境
+venv/
+
+# Python キャッシュ
+__pycache__/
+
+# データベース
+db.sqlite3
